@@ -14,20 +14,16 @@ const ReportConfirmPage = () => {
 
   const popup = location.state || {};
 
-  
   const circleColor = colorMap[popup.color] || "bg-gray-400";
 
-  
   const titleText = popup.title ? `${popup.title} สำเร็จ` : "สำเร็จ!";
   const holeText = popup.hole ? `หลุมที่ ${popup.hole}` : "";
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white p-8 rounded-3xl shadow-lg w-[90%] max-w-sm text-center space-y-6">
-  
         <div className={`${circleColor} w-12 h-12 rounded-full mx-auto`} />
 
-     
         <h3 className="text-lg font-semibold">{titleText}</h3>
 
         {holeText && <p>แจ้งสำหรับ {holeText}</p>}

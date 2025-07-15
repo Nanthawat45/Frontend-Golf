@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { useNavigate, useLocation } from "react-router";
 import { useState } from "react";
 import logo from "../../assets/logo.jpg";
@@ -7,7 +7,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-    
+
   const isStatusPage = location.pathname === "/starter";
   const isReportPage = location.pathname === "/starter/report";
 
@@ -38,12 +38,12 @@ const Header = () => {
       </div>
 
       {/* โลโก้และชื่ออยู่กลางแบบ stack */}
-     <div className="absolute left-1/2 top-[50%] transform -translate-x-1/2 translate-y-[-40%] text-center">
-  <img src={logo} alt="Logo" className="h-20 w-auto mx-auto mb-1" />
-  <span className="block font-bold text-lg sm:text-xl select-none">
-    The Eden Golf Club
-  </span>
-</div>
+      <div className="absolute left-1/2 top-[50%] transform -translate-x-1/2 translate-y-[-40%] text-center">
+        <img src={logo} alt="Logo" className="h-20 w-auto mx-auto mb-1" />
+        <span className="block font-bold text-lg sm:text-xl select-none">
+          The Eden Golf Club
+        </span>
+      </div>
 
       {/* ปุ่มเมนูมือถือ */}
       <div className="sm:hidden ml-auto z-50">
@@ -73,7 +73,7 @@ const Header = () => {
         <div className="absolute top-full right-4 mt-2 bg-white border rounded-lg shadow-lg p-3 w-40 sm:hidden z-40">
           <button
             onClick={() => {
-              navigate("/starter");
+              navigate("/start");
               setMenuOpen(false);
             }}
             className={`w-full text-left px-3 py-2 rounded mb-2 font-semibold border transition text-sm ${
