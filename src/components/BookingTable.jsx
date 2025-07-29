@@ -11,7 +11,7 @@ import {
   Hash,
 } from "lucide-react";
 
-const bookings = [
+const initialBookings = [
   {
     time: "07:00",
     caddies: ["C019", "C020", "C022"],
@@ -40,32 +40,63 @@ const bookings = [
     group: "กิตติพงศ์ นามะชัย",
     players: 4,
   },
+  {
+    time: "13:00",
+    caddies: ["C012", "C015", "C017"],
+    team: "Red Wolf",
+    group: "Capy Bara",
+    players: 4,
+  },
 ];
 
 export default function BookingTable() {
+  const [bookings, setBookings] = useState(initialBookings);
   const [selected, setSelected] = useState(null);
-  const [holeFilter, setHoleFilter] = useState("all"); // "all", "9", "18"
+  const [holeFilter, setHoleFilter] = useState("all");
+  const [rescheduleBooking, setRescheduleBooking] = useState(null);
+  const [cancelBooking, setCancelBooking] = useState(null); // ✅ เพิ่ม state ยกเลิก
 
   const activeColor = "#4F6767";
   const hoverColor = "#3d5151";
 
-  const times = Array.from({ length: 15 }).map((_, index) => {
+  const times = Array.from({ length: 48 }).map((_, index) => {
     const hour = Math.floor(index / 4) + 6;
     const min = (index % 4) * 15;
-    return `${hour.toString().padStart(2, "0")}:${min.toString().padStart(2, "0")}`;
+    return `${hour.toString().padStart(2, "0")}:${min
+      .toString()
+      .padStart(2, "0")}`;
   });
+
+  const getAvailableTimes = () => {
+    const usedTimes = bookings.map((b) => b.time);
+    return times.filter((t) => {
+      if (usedTimes.includes(t)) return false;
+      if (holeFilter === "9") return t >= "12:15" && t <= "18:00";
+      if (holeFilter === "18") return t >= "06:00" && t <= "12:00";
+      return t >= "06:00" && t <= "18:00";
+    });
+  };
 
   const filteredTimes = times.filter((time) => {
-    if (holeFilter === "9") {
-      return time <= "11:30";
-    }
-    if (holeFilter === "18") {
-      return true;
-    }
-    return true;
+    if (holeFilter === "9") return time >= "12:15" && time <= "18:00";
+    if (holeFilter === "18") return time >= "06:00" && time <= "12:00";
+    return time >= "06:00" && time <= "18:00";
   });
 
-  // ฟังก์ชันช่วยสร้างปุ่ม พร้อมจัดการ hover, active styles
+  const handleReschedule = (newTime) => {
+    setBookings((prev) =>
+      prev.map((b) =>
+        b.time === rescheduleBooking.time ? { ...b, time: newTime } : b
+      )
+    );
+    setRescheduleBooking(null);
+  };
+
+  const handleCancel = () => {
+    setBookings(bookings.filter((b) => b.time !== cancelBooking.time));
+    setCancelBooking(null);
+  };
+
   function FilterButton({ label, value }) {
     const isActive = holeFilter === value;
     return (
@@ -92,64 +123,34 @@ export default function BookingTable() {
 
   return (
     <div className="p-4 bg-white shadow rounded-xl overflow-x-auto">
-      {/* ปุ่มเลือก 9 หลุม / 18 หลุม / ทั้งหมด */}
-      <div className="mb-4 flex gap-3 ">
+      {/* ปุ่มเลือกหลุม */}
+      <div className="mb-4 flex gap-3">
         <FilterButton label="9 หลุม" value="9" />
         <FilterButton label="18 หลุม" value="18" />
         <FilterButton label="ทั้งหมด" value="all" />
       </div>
 
+      {/* ตาราง */}
       <table className="min-w-full text-sm text-center">
         <thead>
           <tr className="bg-white border-b font-semibold text-sm text-center">
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <Hash size={18} className="mb-1" />
-                <span>คิว</span>
-              </div>
-            </th>
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <UserRound size={18} className="mb-1" />
-                <span>แคดดี้</span>
-              </div>
-            </th>
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <Clock size={18} className="mb-1" />
-                <span>เวลา</span>
-              </div>
-            </th>
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <Users size={18} className="mb-1" />
-                <span>ชื่อกลุ่ม</span>
-              </div>
-            </th>
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <ClipboardList size={18} className="mb-1" />
-                <span>จำนวนผู้เล่น</span>
-              </div>
-            </th>
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <UserCheck size={18} className="mb-1" />
-                <span>ชื่อผู้จอง</span>
-              </div>
-            </th>
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <RefreshCw size={18} className="mb-1" />
-                <span>เลื่อนเวลา</span>
-              </div>
-            </th>
-            <th className="px-2 py-2">
-              <div className="flex flex-col items-center justify-center">
-                <Trash2 size={18} className="mb-1" />
-                <span>ยกเลิก</span>
-              </div>
-            </th>
+            {[
+              [Hash, "คิว"],
+              [UserRound, "แคดดี้"],
+              [Clock, "เวลา"],
+              [Users, "ชื่อกลุ่ม"],
+              [ClipboardList, "จำนวนผู้เล่น"],
+              [UserCheck, "ชื่อผู้จอง"],
+              [RefreshCw, "เลื่อนเวลา"],
+              [Trash2, "ยกเลิก"],
+            ].map(([Icon, label], i) => (
+              <th key={i} className="px-2 py-2">
+                <div className="flex flex-col items-center justify-center">
+                  <Icon size={18} className="mb-1" />
+                  <span>{label}</span>
+                </div>
+              </th>
+            ))}
           </tr>
         </thead>
 
@@ -177,12 +178,24 @@ export default function BookingTable() {
                     <td>{booking.players}</td>
                     <td>{booking.group}</td>
                     <td>
-                      <button className="bg-gray-800 text-white text-xs px-3 py-1 rounded-full hover:bg-gray-500">
+                      <button
+                        className="bg-gray-800 text-white text-xs px-3 py-1 rounded-full hover:bg-gray-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRescheduleBooking(booking);
+                        }}
+                      >
                         เลื่อนเวลา
                       </button>
                     </td>
                     <td>
-                      <button className="bg-gray-800 text-white text-xs px-3 py-1 rounded-full hover:bg-red-500">
+                      <button
+                        className="bg-gray-800 text-white text-xs px-3 py-1 rounded-full hover:bg-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCancelBooking(booking);
+                        }}
+                      >
                         ยกเลิก
                       </button>
                     </td>
@@ -196,24 +209,34 @@ export default function BookingTable() {
         </tbody>
       </table>
 
-      {/* Popup รายละเอียดการจอง */}
+      {/* Popup แสดงรายละเอียด */}
       <Dialog
         open={!!selected}
         onClose={() => setSelected(null)}
         className="fixed inset-0 z-50 flex items-center justify-center"
       >
-        <div className="bg-black bg-opacity-30 fixed inset-0" aria-hidden="true" />
+        <div className="bg-black bg-opacity-30 fixed inset-0" />
         <div className="relative bg-white rounded-lg shadow-xl w-[90%] max-w-md p-6 z-50">
           <Dialog.Title className="text-lg font-bold mb-2">
             รายละเอียดการจอง
           </Dialog.Title>
           {selected && (
             <div className="text-sm space-y-2">
-              <p><strong>ชื่อกลุ่ม:</strong> {selected.team}</p>
-              <p><strong>ชื่อผู้จอง:</strong> {selected.group}</p>
-              <p><strong>เวลา:</strong> {selected.time}</p>
-              <p><strong>จำนวนผู้เล่น:</strong> {selected.players}</p>
-              <p><strong>แคดดี้:</strong> {selected.caddies.join(", ")}</p>
+              <p>
+                <strong>ชื่อกลุ่ม:</strong> {selected.team}
+              </p>
+              <p>
+                <strong>ชื่อผู้จอง:</strong> {selected.group}
+              </p>
+              <p>
+                <strong>เวลา:</strong> {selected.time}
+              </p>
+              <p>
+                <strong>จำนวนผู้เล่น:</strong> {selected.players}
+              </p>
+              <p>
+                <strong>แคดดี้:</strong> {selected.caddies.join(", ")}
+              </p>
             </div>
           )}
           <div className="mt-4 text-right">
@@ -222,6 +245,71 @@ export default function BookingTable() {
               className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700"
             >
               ปิดหน้าต่าง
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Popup เลื่อนเวลา */}
+      <Dialog
+        open={!!rescheduleBooking}
+        onClose={() => setRescheduleBooking(null)}
+        className="fixed inset-0 z-50 flex items-center justify-center"
+      >
+        <div className="bg-black bg-opacity-30 fixed inset-0" />
+        <div className="relative bg-white rounded-lg shadow-xl w-[90%] max-w-md p-6 z-50">
+          <Dialog.Title className="text-lg font-bold mb-2">
+            เลือกเวลาใหม่
+          </Dialog.Title>
+          <div className="grid grid-cols-3 gap-2 mt-4 text-sm max-h-[300px] overflow-y-auto">
+            {getAvailableTimes().map((time) => (
+              <button
+                key={time}
+                className="bg-[#4F6767] text-white px-3 py-1 rounded hover:bg-[#3d5151] transition"
+                onClick={() => handleReschedule(time)}
+              >
+                {time}
+              </button>
+            ))}
+          </div>
+          <div className="mt-4 text-right">
+            <button
+              onClick={() => setRescheduleBooking(null)}
+              className="bg-gray-300 text-black px-4 py-1.5 rounded-lg text-sm hover:bg-gray-400"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* ✅ Popup ยืนยันยกเลิก */}
+      <Dialog
+        open={!!cancelBooking}
+        onClose={() => setCancelBooking(null)}
+        className="fixed inset-0 z-50 flex items-center justify-center"
+      >
+        <div className="bg-black bg-opacity-30 fixed inset-0" />
+        <div className="relative bg-white rounded-lg shadow-xl w-[90%] max-w-sm p-6 z-50">
+          <Dialog.Title className="text-lg font-bold text-red-600 mb-2">
+            ยืนยันการยกเลิก
+          </Dialog.Title>
+          <p className="text-sm mb-4">
+            คุณต้องการยกเลิกการจองของ <strong>{cancelBooking?.group}</strong>{" "}
+            เวลา <strong>{cancelBooking?.time}</strong> ใช่หรือไม่?
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setCancelBooking(null)}
+              className="px-4 py-1.5 rounded bg-gray-300 text-sm hover:bg-gray-400"
+            >
+              ยกเลิก
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-4 py-1.5 rounded bg-red-600 text-white text-sm hover:bg-red-700"
+            >
+              ยืนยัน
             </button>
           </div>
         </div>

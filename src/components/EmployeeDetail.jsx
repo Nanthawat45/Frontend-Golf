@@ -18,7 +18,8 @@ export default function EmployeeDetail({ employee, onBack }) {
       <button onClick={onBack} className="mb-6 text-blue-600 font-medium hover:underline">
         ← ย้อนกลับ
       </button>
-
+      
+    <div className="flex justify-center  min-h-screen bg-gray-100 p-4">
       <div className="flex flex-col md:flex-row gap-10">
         <div className="flex-shrink-0 text-center">
           <img
@@ -38,10 +39,6 @@ export default function EmployeeDetail({ employee, onBack }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {renderField("ชื่อ-นามสกุล", "name")}
               {renderField("เพศ", "gender")}
-              {renderField("วันเกิด", "birthdate")}
-              {renderField("สัญชาติ", "nationality")}
-              {renderField("เลขบัตรประชาชน", "idCard")}
-              {renderField("ที่อยู่", "address", true)}
             </div>
           </section>
 
@@ -51,7 +48,7 @@ export default function EmployeeDetail({ employee, onBack }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {renderField("เบอร์โทรศัพท์", "phone")}
               {renderField("อีเมล", "email")}
-              {renderField("ไลน์ไอดี", "lineId")}
+              
             </div>
           </section>
 
@@ -61,13 +58,8 @@ export default function EmployeeDetail({ employee, onBack }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {renderField("ตำแหน่ง", "position")}
               {renderField("รหัสพนักงาน", "employeeCode")}
-              {/*<p><strong>รหัสพนักงาน:</strong> {formData.employeeCode}</p>*/}
-              {renderField("วันที่เริ่มงาน", "startDate")}
-              {renderField("วันหมดสัญญา", "contractEnd")}
-              {renderField("ประเภทพนักงาน", "workType")}
-              {renderField("สถานที่ทำงาน", "workplace")}
-              {renderField("เงินเดือน", "salary")}
-              {renderField("แผนก", "department")}
+              {renderField("สถานะ", "status")}
+              
             </div>
           </section>
 
@@ -98,6 +90,7 @@ export default function EmployeeDetail({ employee, onBack }) {
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
